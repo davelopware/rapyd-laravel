@@ -88,6 +88,8 @@ class DataForm extends Widget
     protected $orientation = 'horizontal';
     protected $form_callable = '';
 
+    protected $validatorAfterClosure = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -264,6 +266,10 @@ class DataForm extends Widget
         return $ins;
     }
 
+    public function validatorAfter($afterClosure) {
+        $this->validatorAfterClosure = $afterClosure;
+    }
+
     /**
      * @return bool
      */
@@ -285,6 +291,10 @@ class DataForm extends Widget
         if (isset($rules)) {
 
             $this->validator = Validator::make(Input::all(), $rules, array(), $attributes);
+
+            if (isset($this->validatorAfterClosure) && is_callable($this->validatorAfterClosure)) {
+                $this->validator->after($this->validatorAfterClosure);
+            }
 
             return !$this->validator->fails();
         } else {
